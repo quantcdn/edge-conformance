@@ -1,0 +1,343 @@
+{
+  "cases": [
+    {
+      "id": "functions-event-request-method",
+      "description": "event.request.method is the request method.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(event.request.method);",
+        "request": {
+          "method": "POST",
+          "url": "https://www.example.com/api",
+          "body": "x"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "POST"
+      }
+    },
+    {
+      "id": "functions-event-request-header-names-ignore-case",
+      "description": "event.request.headers.get() ignores the case of the header name.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(event.request.headers.get('x-CUSTOM'));",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api",
+          "headers": {
+            "X-Custom": "abc"
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "abc"
+      }
+    },
+    {
+      "id": "functions-event-request-text-body",
+      "description": "A POST body is readable with event.request.text().",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(await event.request.text());",
+        "request": {
+          "method": "POST",
+          "url": "https://www.example.com/api",
+          "headers": {
+            "content-type": "text/plain"
+          },
+          "body": "name=ada"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "name=ada"
+      }
+    },
+    {
+      "id": "functions-event-request-json-body",
+      "description": "A JSON POST body is readable with event.request.json().",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response((await event.request.json()).name);",
+        "request": {
+          "method": "POST",
+          "url": "https://www.example.com/api",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"name\":\"ada\"}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "ada"
+      }
+    },
+    {
+      "id": "functions-get-request-has-no-body",
+      "description": "A GET request has a null body.",
+      "tags": [
+        "functions",
+        "unverified"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(String(event.request.body === null));",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "true"
+      }
+    },
+    {
+      "id": "functions-event-request-url",
+      "description": "event.request.url keeps the path and the query of the request.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "const u = new URL(event.request.url);\nreturn new Response(u.pathname + u.search);",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/items?page=2"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "/api/items?page=2"
+      }
+    },
+    {
+      "id": "functions-event-url-keeps-the-query",
+      "description": "For a function rule, event.url keeps the query of the request.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(new URL(event.url).search);",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/items?page=2"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "?page=2"
+      }
+    },
+    {
+      "id": "functions-auth-event-url-is-the-request-url",
+      "description": "For an auth rule, event.url has the request path.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0002-4000-8000-000000000002",
+        "type": "auth",
+        "body": "return new Response(new URL(event.url).pathname, { status: 401 });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/area"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "bodyText": "/members/area"
+      }
+    },
+    {
+      "id": "functions-client-ip-header",
+      "description": "The quant-client-ip request header holds the client address.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "const ip = event.request.headers.get('quant-client-ip');\nreturn new Response(String(typeof ip === 'string' && ip.length > 0));",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "true"
+      }
+    },
+    {
+      "id": "functions-client-ip-header-cannot-be-set-by-the-client",
+      "description": "A quant-client-ip header that the client sends does not reach the function.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(String(event.request.headers.get('quant-client-ip') !== '203.0.113.9'));",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api",
+          "headers": {
+            "quant-client-ip": "203.0.113.9"
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "true"
+      }
+    },
+    {
+      "id": "functions-geo-fields",
+      "description": "event.geo has the documented geolocation fields.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(JSON.stringify({ country_code: typeof event.geo.country_code, country_name: typeof event.geo.country_name, city: typeof event.geo.city, continent: typeof event.geo.continent, latitude: typeof event.geo.latitude, longitude: typeof event.geo.longitude, utc_offset: typeof event.geo.utc_offset }), { headers: { 'content-type': 'application/json' } });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyJson": {
+          "country_code": "string",
+          "country_name": "string",
+          "city": "string",
+          "continent": "string",
+          "latitude": "number",
+          "longitude": "number",
+          "utc_offset": "number"
+        }
+      }
+    },
+    {
+      "id": "functions-node-globals-are-absent",
+      "description": "Node.js globals such as process and require do not exist in a function.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(JSON.stringify({ process: typeof process, require: typeof require, module: typeof module, exports: typeof exports, __dirname: typeof __dirname, __filename: typeof __filename }), { headers: { 'content-type': 'application/json' } });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyJson": {
+          "process": "undefined",
+          "require": "undefined",
+          "module": "undefined",
+          "exports": "undefined",
+          "__dirname": "undefined",
+          "__filename": "undefined"
+        }
+      }
+    },
+    {
+      "id": "functions-web-globals-are-present",
+      "description": "The web platform globals exist in a function.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(JSON.stringify({ fetch: typeof fetch, Request: typeof Request, Response: typeof Response, Headers: typeof Headers, URL: typeof URL, URLSearchParams: typeof URLSearchParams, TextEncoder: typeof TextEncoder, TextDecoder: typeof TextDecoder, TransformStream: typeof TransformStream, atob: typeof atob, btoa: typeof btoa, crypto: typeof crypto, setTimeout: typeof setTimeout }), { headers: { 'content-type': 'application/json' } });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyJson": {
+          "fetch": "function",
+          "Request": "function",
+          "Response": "function",
+          "Headers": "function",
+          "URL": "function",
+          "URLSearchParams": "function",
+          "TextEncoder": "function",
+          "TextDecoder": "function",
+          "TransformStream": "function",
+          "atob": "function",
+          "btoa": "function",
+          "crypto": "object",
+          "setTimeout": "function"
+        }
+      }
+    },
+    {
+      "id": "functions-btoa",
+      "description": "btoa encodes a string as base64, as the basic auth example uses it.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(btoa('user:pass'));",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "dXNlcjpwYXNz"
+      }
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "id": "functions-filter-transforms-html",
+      "description": "A content filter changes the body of a text/html response.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0003-4000-8000-000000000003",
+        "type": "filter",
+        "body": "class contentFilter extends TransformStream {\n  constructor(event, responseHeaders) {\n    super({\n      transform: (chunk, controller) => {\n        const text = this.textDecoder.decode(chunk);\n        controller.enqueue(this.textEncoder.encode(text.replace(/example/g, 'test')));\n      }\n    });\n    this.textEncoder = new TextEncoder();\n    this.textDecoder = new TextDecoder();\n  }\n}",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8"
+          },
+          "body": "<p>example page</p>"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<p>test page</p>"
+      }
+    },
+    {
+      "id": "functions-filter-sets-a-response-header",
+      "description": "A content filter can set a response header on a text/html response.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0003-4000-8000-000000000003",
+        "type": "filter",
+        "body": "class contentFilter extends TransformStream {\n  constructor(event, responseHeaders) {\n    responseHeaders.set('x-filtered', 'yes');\n    super({ transform: (chunk, controller) => controller.enqueue(chunk) });\n  }\n}",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8"
+          },
+          "body": "<p>page</p>"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "x-filtered": "yes"
+        },
+        "bodyText": "<p>page</p>"
+      }
+    },
+    {
+      "id": "functions-filter-keeps-the-status",
+      "description": "A content filter keeps the status of the response.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0003-4000-8000-000000000003",
+        "type": "filter",
+        "body": "class contentFilter extends TransformStream {\n  constructor(event, responseHeaders) {\n    super({\n      transform: (chunk, controller) => {\n        const text = this.textDecoder.decode(chunk);\n        controller.enqueue(this.textEncoder.encode(text.replace(/example/g, 'test')));\n      }\n    });\n    this.textEncoder = new TextEncoder();\n    this.textDecoder = new TextDecoder();\n  }\n}",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        },
+        "response": {
+          "status": 404,
+          "headers": {
+            "content-type": "text/html; charset=utf-8"
+          },
+          "body": "<p>example missing</p>"
+        }
+      },
+      "expect": {
+        "status": 404,
+        "bodyText": "<p>test missing</p>"
+      }
+    },
+    {
+      "id": "functions-filter-does-not-change-a-non-html-body",
+      "description": "A content filter does not change the body of a response that is not text/html.",
+      "tags": [
+        "functions",
+        "unverified"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0003-4000-8000-000000000003",
+        "type": "filter",
+        "body": "class contentFilter extends TransformStream {\n  constructor(event, responseHeaders) {\n    super({\n      transform: (chunk, controller) => {\n        const text = this.textDecoder.decode(chunk);\n        controller.enqueue(this.textEncoder.encode(text.replace(/example/g, 'test')));\n      }\n    });\n    this.textEncoder = new TextEncoder();\n    this.textDecoder = new TextDecoder();\n  }\n}",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/data"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"word\":\"example\"}"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "{\"word\":\"example\"}"
+      }
+    },
+    {
+      "id": "functions-filter-needs-a-content-filter-class",
+      "description": "A filter body that does not define contentFilter gives a 500 response.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0003-4000-8000-000000000003",
+        "type": "filter",
+        "body": "const notAFilter = 1;",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8"
+          },
+          "body": "<p>page</p>"
+        }
+      },
+      "expect": {
+        "status": 500
+      }
+    },
+    {
+      "id": "functions-filter-applies-to-static-html",
+      "description": "A filter rule changes a static text/html page.",
+      "tags": [
+        "functions"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<p>example home</p>"
+        },
+        "functions": [
+          {
+            "uuid": "b2c3d4e5-0003-4000-8000-000000000003",
+            "id": "rewrite",
+            "type": "filter",
+            "body": "class contentFilter extends TransformStream {\n  constructor(event, responseHeaders) {\n    super({\n      transform: (chunk, controller) => {\n        const text = this.textDecoder.decode(chunk);\n        controller.enqueue(this.textEncoder.encode(text.replace(/example/g, 'test')));\n      }\n    });\n    this.textEncoder = new TextEncoder();\n    this.textDecoder = new TextDecoder();\n  }\n}"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "rewrite",
+              "type": "filter",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "b2c3d4e5-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<p>test home</p>"
+      }
+    },
+    {
+      "id": "functions-filter-skips-static-css",
+      "description": "A filter rule does not change a static file that is not text/html.",
+      "tags": [
+        "functions"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<p>example home</p>",
+          "site.css": ".example { color: red; }"
+        },
+        "functions": [
+          {
+            "uuid": "b2c3d4e5-0003-4000-8000-000000000003",
+            "id": "rewrite",
+            "type": "filter",
+            "body": "class contentFilter extends TransformStream {\n  constructor(event, responseHeaders) {\n    super({\n      transform: (chunk, controller) => {\n        const text = this.textDecoder.decode(chunk);\n        controller.enqueue(this.textEncoder.encode(text.replace(/example/g, 'test')));\n      }\n    });\n    this.textEncoder = new TextEncoder();\n    this.textDecoder = new TextDecoder();\n  }\n}"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "rewrite",
+              "type": "filter",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "b2c3d4e5-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/site.css"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": ".example { color: red; }"
+      }
+    }
+  ]
+}

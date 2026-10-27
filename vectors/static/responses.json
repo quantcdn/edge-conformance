@@ -1,0 +1,390 @@
+{
+  "cases": [
+    {
+      "id": "static-css-content-type",
+      "description": "A .css file has the text/css content type.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/css/site.css"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/css"
+          }
+        },
+        "bodyText": "body { color: #000; }"
+      }
+    },
+    {
+      "id": "static-js-content-type",
+      "description": "A .js file has a JavaScript content type.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/js/app.js"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "includes": "javascript"
+          }
+        },
+        "bodyText": "console.log(\"app\");"
+      }
+    },
+    {
+      "id": "static-json-content-type",
+      "description": "A .json file has the application/json content type.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/data/items.json"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "application/json"
+          }
+        },
+        "bodyText": "{\"items\":[]}"
+      }
+    },
+    {
+      "id": "static-svg-content-type",
+      "description": "A .svg file has the image/svg+xml content type.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/img/logo.svg"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "image/svg+xml"
+          }
+        }
+      }
+    },
+    {
+      "id": "static-text-content-type",
+      "description": "A .txt file has the text/plain content type.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/files/digits.txt"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/plain"
+          }
+        },
+        "bodyText": "0123456789"
+      }
+    },
+    {
+      "id": "static-head-has-no-body",
+      "description": "A HEAD request gets the status and headers but no body.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "HEAD",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": ""
+      }
+    },
+    {
+      "id": "static-range-request",
+      "description": "A byte range request gets 206 and the bytes in the range.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/files/digits.txt",
+          "headers": {
+            "range": "bytes=2-5"
+          }
+        }
+      },
+      "expect": {
+        "status": 206,
+        "headers": {
+          "content-range": "bytes 2-5/10"
+        },
+        "bodyText": "2345"
+      }
+    },
+    {
+      "id": "static-range-suffix",
+      "description": "A suffix range gets the last bytes of the file.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/files/digits.txt",
+          "headers": {
+            "range": "bytes=-3"
+          }
+        }
+      },
+      "expect": {
+        "status": 206,
+        "headers": {
+          "content-range": "bytes 7-9/10"
+        },
+        "bodyText": "789"
+      }
+    },
+    {
+      "id": "static-range-open-end",
+      "description": "A range without an end runs to the end of the file.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/files/digits.txt",
+          "headers": {
+            "range": "bytes=7-"
+          }
+        }
+      },
+      "expect": {
+        "status": 206,
+        "headers": {
+          "content-range": "bytes 7-9/10"
+        },
+        "bodyText": "789"
+      }
+    },
+    {
+      "id": "static-range-unsatisfiable",
+      "description": "A range that starts after the end of the file gets 416.",
+      "tags": [
+        "static",
+        "unverified"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/files/digits.txt",
+          "headers": {
+            "range": "bytes=20-30"
+          }
+        }
+      },
+      "expect": {
+        "status": 416,
+        "headers": {
+          "content-range": "bytes */10"
+        }
+      }
+    },
+    {
+      "id": "static-accept-ranges",
+      "description": "A static file response says that it accepts byte ranges.",
+      "tags": [
+        "static",
+        "unverified"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/files/digits.txt"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "accept-ranges": "bytes"
+        }
+      }
+    }
+  ]
+}

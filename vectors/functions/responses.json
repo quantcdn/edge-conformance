@@ -1,0 +1,304 @@
+{
+  "cases": [
+    {
+      "id": "functions-response-status-headers-and-body",
+      "description": "The Response that a function returns gives the status, headers and body.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response('Hello World', { status: 200, headers: { 'content-type': 'text/html', 'x-powered-by': 'QuantCDN' } });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/hello"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          },
+          "x-powered-by": "QuantCDN"
+        },
+        "bodyText": "Hello World"
+      }
+    },
+    {
+      "id": "functions-response-status",
+      "description": "A function can return any status.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response('Accepted', { status: 202 });",
+        "request": {
+          "method": "POST",
+          "url": "https://www.example.com/api",
+          "body": "x"
+        }
+      },
+      "expect": {
+        "status": 202,
+        "bodyText": "Accepted"
+      }
+    },
+    {
+      "id": "functions-await",
+      "description": "A function body can use await.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "const value = await new Promise((resolve) => setTimeout(() => resolve('later'), 5));\nreturn new Response(value);",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "later"
+      }
+    },
+    {
+      "id": "functions-json-response",
+      "description": "A function can return JSON with its content type.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response(JSON.stringify({ ok: true }), { headers: { 'content-type': 'application/json' } });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "application/json"
+          }
+        },
+        "bodyJson": {
+          "ok": true
+        }
+      }
+    },
+    {
+      "id": "functions-non-response-value",
+      "description": "A value that is not a Response becomes a 200 response with the value as the body.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return 'plain value';",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "plain value"
+      }
+    },
+    {
+      "id": "functions-default-cache-control",
+      "description": "A function response without cache-control gets private, max-age=0.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response('ok');",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "private, max-age=0"
+        }
+      }
+    },
+    {
+      "id": "functions-keeps-its-cache-control",
+      "description": "A cache-control that the function sets is kept.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "return new Response('ok', { headers: { 'cache-control': 'public, max-age=60' } });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "public, max-age=60"
+        }
+      }
+    },
+    {
+      "id": "functions-set-cookie-group",
+      "description": "Each set-cookie header that the function sets reaches the client.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "const headers = new Headers();\nheaders.append('set-cookie', 'a=1; Path=/');\nheaders.append('set-cookie', 'b=2; Path=/');\nreturn new Response('ok', { headers });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "set-cookie": [
+            "a=1; Path=/",
+            "b=2; Path=/"
+          ]
+        }
+      }
+    },
+    {
+      "id": "functions-thrown-error-500",
+      "description": "A function that throws gives a 500 response without the error message.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "throw new Error('function broke');",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 500,
+        "bodyExcludes": [
+          "function broke"
+        ]
+      }
+    },
+    {
+      "id": "functions-thrown-error-empty-body",
+      "description": "The 500 response for a thrown error has an empty body.",
+      "tags": [
+        "functions",
+        "unverified"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "throw new Error('function broke');",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 500,
+        "bodyText": ""
+      }
+    },
+    {
+      "id": "functions-rejected-promise-500",
+      "description": "A function whose promise rejects gives a 500 response.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0001-4000-8000-000000000001",
+        "type": "function",
+        "body": "await Promise.reject(new Error('rejected'));",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api"
+        }
+      },
+      "expect": {
+        "status": 500,
+        "bodyExcludes": [
+          "rejected"
+        ]
+      }
+    },
+    {
+      "id": "functions-auth-deny-response",
+      "description": "An auth function response that is not 201 is the response to the client.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0002-4000-8000-000000000002",
+        "type": "auth",
+        "body": "return new Response('Forbidden', { status: 403 });",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/area"
+        }
+      },
+      "expect": {
+        "status": 403,
+        "bodyText": "Forbidden"
+      }
+    },
+    {
+      "id": "functions-auth-needs-a-response",
+      "description": "An auth function that does not return a Response gives a 500 response.",
+      "tags": [
+        "functions"
+      ],
+      "op": "runFunction",
+      "input": {
+        "uuid": "b2c3d4e5-0002-4000-8000-000000000002",
+        "type": "auth",
+        "body": "return 'yes';",
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/area"
+        }
+      },
+      "expect": {
+        "status": 500
+      }
+    }
+  ]
+}

@@ -1,0 +1,361 @@
+{
+  "cases": [
+    {
+      "id": "static-root-serves-index-html",
+      "description": "The path / serves index.html.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": "<h1>Home</h1>"
+      }
+    },
+    {
+      "id": "static-index-html-path",
+      "description": "A request for /about/index.html serves about/index.html.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/index.html"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": "<h1>About</h1>"
+      }
+    },
+    {
+      "id": "static-directory-with-trailing-slash",
+      "description": "The path /about/ serves about/index.html.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": "<h1>About</h1>"
+      }
+    },
+    {
+      "id": "static-directory-without-trailing-slash",
+      "description": "The path /about serves about/index.html.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": "<h1>About</h1>"
+      }
+    },
+    {
+      "id": "static-nested-directory",
+      "description": "A nested directory serves its index.html.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/docs/guide/intro/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": "<h1>Intro</h1>"
+      }
+    },
+    {
+      "id": "static-html-file",
+      "description": "A file that is not index.html is served at its own path.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/contact.html"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": "<h1>Contact</h1>"
+      }
+    },
+    {
+      "id": "static-query-string-is-ignored",
+      "description": "A query string does not change which file is served.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/?utm_source=mail"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>About</h1>"
+      }
+    },
+    {
+      "id": "static-uppercase-request-path",
+      "description": "A request path with capitals serves the lowercase path.",
+      "tags": [
+        "static",
+        "unverified"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/ABOUT/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>About</h1>"
+      }
+    },
+    {
+      "id": "static-custom-404",
+      "description": "A path with no file serves /_quant404 with status 404.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/missing/"
+        }
+      },
+      "expect": {
+        "status": 404,
+        "headers": {
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": "<h1>Not here</h1>"
+      }
+    },
+    {
+      "id": "static-custom-404-for-a-missing-asset",
+      "description": "A missing asset also gets the /_quant404 page.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "docs/guide/intro/index.html": "<h1>Intro</h1>",
+          "contact.html": "<h1>Contact</h1>",
+          "css/site.css": "body { color: #000; }",
+          "js/app.js": "console.log(\"app\");",
+          "data/items.json": "{\"items\":[]}",
+          "img/logo.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+          "files/digits.txt": "0123456789",
+          "_quant404/index.html": "<h1>Not here</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/css/missing.css"
+        }
+      },
+      "expect": {
+        "status": 404,
+        "bodyText": "<h1>Not here</h1>"
+      }
+    },
+    {
+      "id": "static-404-without-a-custom-page",
+      "description": "Without /_quant404, a path with no file answers 404.",
+      "tags": [
+        "static"
+      ],
+      "op": "serveStatic",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "404.html": "<h1>Old style</h1>"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/missing/"
+        }
+      },
+      "expect": {
+        "status": 404
+      }
+    }
+  ]
+}

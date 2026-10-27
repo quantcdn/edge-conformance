@@ -1,0 +1,42 @@
+{
+  "name": "@quantcdn/edge-conformance",
+  "version": "0.1.0",
+  "description": "Conformance vectors for Quant edge rules, static serving and edge functions, with a runner for any adapter.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "types": "./src/adapter.d.ts",
+  "bin": {
+    "edge-conformance": "src/cli.js"
+  },
+  "files": [
+    "src",
+    "vectors",
+    "adapters",
+    "LICENSE",
+    "README.md",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quantcdn/edge-conformance.git"
+  },
+  "keywords": [
+    "quant",
+    "edge",
+    "conformance",
+    "test-vectors"
+  ],
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/quantcdn/edge-conformance#readme",
+  "bugs": {
+    "url": "https://github.com/quantcdn/edge-conformance/issues"
+  }
+}

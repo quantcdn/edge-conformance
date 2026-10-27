@@ -1,0 +1,1967 @@
+{
+  "cases": [
+    {
+      "id": "rules-wildcard-matches-segment",
+      "description": "A trailing * matches the rest of the path.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "blog",
+              "type": "function",
+              "urls": [
+                "/blog/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/blog/first-post"
+        }
+      },
+      "expect": {
+        "ruleId": "blog"
+      }
+    },
+    {
+      "id": "rules-wildcard-matches-nested-path",
+      "description": "A * also matches across / characters.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "blog",
+              "type": "function",
+              "urls": [
+                "/blog/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/blog/2026/10/first-post"
+        }
+      },
+      "expect": {
+        "ruleId": "blog"
+      }
+    },
+    {
+      "id": "rules-wildcard-needs-a-character",
+      "description": "A * matches one or more characters, so /blog/* does not match /blog/.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "blog",
+              "type": "function",
+              "urls": [
+                "/blog/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/blog/"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-wildcard-is-not-a-bare-prefix",
+      "description": "/blog/* does not match /blog.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "blog",
+              "type": "function",
+              "urls": [
+                "/blog/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/blog"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-slash-star-does-not-match-the-root",
+      "description": "The pattern /* needs a character after /, so it does not match /.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "all",
+              "type": "function",
+              "urls": [
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-root-and-slash-star-match-every-path",
+      "description": "The patterns / and /* together match every path.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "all",
+              "type": "function",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "ruleId": "all"
+      }
+    },
+    {
+      "id": "rules-wildcard-in-the-middle",
+      "description": "A * can stand for one segment in the middle of a pattern.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "cart",
+              "type": "function",
+              "urls": [
+                "/shop/*/cart"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/shop/au/cart"
+        }
+      },
+      "expect": {
+        "ruleId": "cart"
+      }
+    },
+    {
+      "id": "rules-pattern-is-case-insensitive",
+      "description": "A pattern with capitals matches a lowercase path.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "docs",
+              "type": "function",
+              "urls": [
+                "/Docs/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/docs/getting-started"
+        }
+      },
+      "expect": {
+        "ruleId": "docs"
+      }
+    },
+    {
+      "id": "rules-path-is-case-insensitive",
+      "description": "A lowercase pattern matches a path with capitals.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "docs",
+              "type": "function",
+              "urls": [
+                "/docs/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/DOCS/Intro"
+        }
+      },
+      "expect": {
+        "ruleId": "docs"
+      }
+    },
+    {
+      "id": "rules-pattern-is-anchored-at-the-start",
+      "description": "A pattern matches from the start of the path.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/v1/api/users"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-pattern-is-anchored-at-the-end",
+      "description": "A pattern without * matches the whole path only.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/users"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-exact-path",
+      "description": "A pattern without * matches the same path.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "data",
+              "type": "function",
+              "urls": [
+                "/data.json"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/data.json"
+        }
+      },
+      "expect": {
+        "ruleId": "data"
+      }
+    },
+    {
+      "id": "rules-pattern-characters-are-literal",
+      "description": "Characters other than * have no special meaning: . matches only a dot.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "data",
+              "type": "function",
+              "urls": [
+                "/data.json"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/dataxjson"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-query-pattern-matches-the-query",
+      "description": "A pattern that contains ? is tested against the path and the query.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "search",
+              "type": "function",
+              "urls": [
+                "/search?q=*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/search?q=edge"
+        }
+      },
+      "expect": {
+        "ruleId": "search"
+      }
+    },
+    {
+      "id": "rules-query-pattern-needs-the-query",
+      "description": "A query pattern does not match the path without a query.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "search",
+              "type": "function",
+              "urls": [
+                "/search?q=*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/search"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-path-pattern-ignores-the-query",
+      "description": "A pattern without ? is tested against the path only.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "search",
+              "type": "function",
+              "urls": [
+                "/search"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/search?q=edge"
+        }
+      },
+      "expect": {
+        "ruleId": "search"
+      }
+    },
+    {
+      "id": "rules-index-html-form",
+      "description": "A request for /about/index.html matches the pattern /about.",
+      "tags": [
+        "rules",
+        "unverified"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "about",
+              "type": "function",
+              "urls": [
+                "/about"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/index.html"
+        }
+      },
+      "expect": {
+        "ruleId": "about"
+      }
+    },
+    {
+      "id": "rules-any-url-in-the-list",
+      "description": "A rule matches when any of its URL patterns matches.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "content",
+              "type": "function",
+              "urls": [
+                "/news/*",
+                "/blog/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/blog/post"
+        }
+      },
+      "expect": {
+        "ruleId": "content"
+      }
+    },
+    {
+      "id": "rules-domain-exact-host",
+      "description": "A rule domain matches the same host.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "site",
+              "type": "function",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "domains": [
+                "www.example.com"
+              ]
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": "site"
+      }
+    },
+    {
+      "id": "rules-domain-ignores-the-port",
+      "description": "The port of the request host is not part of the domain match.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "site",
+              "type": "function",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "domains": [
+                "www.example.com"
+              ]
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "http://www.example.com:8080/page"
+        }
+      },
+      "expect": {
+        "ruleId": "site"
+      }
+    },
+    {
+      "id": "rules-domain-other-host",
+      "description": "A rule domain does not match a different host.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "site",
+              "type": "function",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "domains": [
+                "www.example.com"
+              ]
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://shop.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-domain-is-not-a-suffix",
+      "description": "A rule domain is an exact host name, not a suffix.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "site",
+              "type": "function",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "domains": [
+                "example.com"
+              ]
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-domain-any",
+      "description": "The domain any matches every host.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "site",
+              "type": "function",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "domains": [
+                "any"
+              ]
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://shop.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": "site"
+      }
+    },
+    {
+      "id": "rules-domain-omitted-matches-every-host",
+      "description": "A rule without domains matches every host.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "site",
+              "type": "function",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://shop.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": "site"
+      }
+    },
+    {
+      "id": "rules-domain-is-case-insensitive",
+      "description": "A rule domain with capitals matches the lowercase host.",
+      "tags": [
+        "rules",
+        "unverified"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "site",
+              "type": "function",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "domains": [
+                "WWW.Example.com"
+              ]
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": "site"
+      }
+    },
+    {
+      "id": "rules-method-listed",
+      "description": "A rule with methods matches a listed method.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "submit",
+              "type": "function",
+              "urls": [
+                "/form"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "methods": [
+                "POST"
+              ]
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "POST",
+          "url": "https://www.example.com/form"
+        }
+      },
+      "expect": {
+        "ruleId": "submit"
+      }
+    },
+    {
+      "id": "rules-method-not-listed",
+      "description": "A rule with methods does not match a method that is not listed.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "submit",
+              "type": "function",
+              "urls": [
+                "/form"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "methods": [
+                "POST"
+              ]
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/form"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-methods-omitted-match-every-method",
+      "description": "A rule without methods matches every method.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "item",
+              "type": "function",
+              "urls": [
+                "/item"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "DELETE",
+          "url": "https://www.example.com/item"
+        }
+      },
+      "expect": {
+        "ruleId": "item"
+      }
+    },
+    {
+      "id": "rules-disabled-rule-is-skipped",
+      "description": "A disabled rule never matches; the next matching rule wins.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "off",
+              "type": "function",
+              "urls": [
+                "/page"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+              "disabled": true
+            },
+            {
+              "id": "on",
+              "type": "function",
+              "urls": [
+                "/page"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": "on"
+      }
+    },
+    {
+      "id": "rules-lower-weight-runs-first",
+      "description": "Rules run in ascending weight order.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "heavy",
+              "type": "function",
+              "urls": [
+                "/page"
+              ],
+              "weight": 10,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            },
+            {
+              "id": "light",
+              "type": "function",
+              "urls": [
+                "/page"
+              ],
+              "weight": -5,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": "light"
+      }
+    },
+    {
+      "id": "rules-equal-weight-keeps-manifest-order",
+      "description": "Rules with the same weight keep their manifest order.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "first",
+              "type": "function",
+              "urls": [
+                "/page"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            },
+            {
+              "id": "second",
+              "type": "function",
+              "urls": [
+                "/page"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": "first"
+      }
+    },
+    {
+      "id": "rules-first-match-wins",
+      "description": "The first matching rule wins, even when a later rule is more specific.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "general",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            },
+            {
+              "id": "specific",
+              "type": "function",
+              "urls": [
+                "/api/users"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/users"
+        }
+      },
+      "expect": {
+        "ruleId": "general"
+      }
+    },
+    {
+      "id": "rules-filter-rule-does-not-handle-the-request",
+      "description": "A content filter rule does not answer the request, so it is not the matched rule.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "filter",
+              "type": "filter",
+              "urls": [
+                "/",
+                "/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0004-4000-8000-000000000004"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/page"
+        }
+      },
+      "expect": {
+        "ruleId": null
+      }
+    },
+    {
+      "id": "rules-auth-rule-matches",
+      "description": "An auth rule matches like a function rule.",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/home"
+        }
+      },
+      "expect": {
+        "ruleId": "members"
+      }
+    },
+    {
+      "id": "rules-function-ref",
+      "description": "A rule can name its function with function_ref (the function id in the functions manifest).",
+      "tags": [
+        "rules"
+      ],
+      "op": "matchRule",
+      "input": {
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "by-ref",
+              "type": "function",
+              "urls": [
+                "/ref/*"
+              ],
+              "weight": 0,
+              "function_ref": "api"
+            }
+          ]
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0002-4000-8000-000000000002",
+            "id": "other",
+            "type": "function"
+          },
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth"
+          },
+          {
+            "uuid": "a1b2c3d4-0004-4000-8000-000000000004",
+            "id": "rewrite",
+            "type": "filter"
+          }
+        ],
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/ref/x"
+        }
+      },
+      "expect": {
+        "ruleId": "by-ref"
+      }
+    }
+  ]
+}

@@ -1,0 +1,659 @@
+{
+  "cases": [
+    {
+      "id": "rules-function-rule-before-static",
+      "description": "A matching function rule answers the request, although a static file exists at the path.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "api/status/index.html": "<p>static status</p>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function",
+            "body": "return new Response(\"from function\", { status: 200, headers: { 'content-type': 'text/plain' } });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/status"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "from function"
+      }
+    },
+    {
+      "id": "rules-no-match-serves-static",
+      "description": "When no rule matches, the static file is served.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "about/index.html": "<h1>About</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function",
+            "body": "return new Response(\"from function\", { status: 200, headers: { 'content-type': 'text/plain' } });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>About</h1>"
+      }
+    },
+    {
+      "id": "rules-auth-201-continues",
+      "description": "An auth function that returns 201 lets the request continue to the static file.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('ok', { status: 201 });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>Members report</h1>"
+      }
+    },
+    {
+      "id": "rules-auth-201-adds-its-headers-but-not-content-type",
+      "description": "The headers of a 201 auth response are added to the final response, except content-type.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('ok', { status: 201, headers: { 'x-member': 'ada', 'content-type': 'text/plain' } });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "x-member": "ada",
+          "content-type": {
+            "startsWith": "text/html"
+          }
+        },
+        "bodyText": "<h1>Members report</h1>"
+      }
+    },
+    {
+      "id": "rules-auth-201-default-cache-control",
+      "description": "When a 201 auth response sets no cache-control, the final response gets private, max-age=0.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('ok', { status: 201 });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "private, max-age=0"
+        }
+      }
+    },
+    {
+      "id": "rules-auth-201-keeps-its-cache-control",
+      "description": "A cache-control on a 201 auth response is kept on the final response.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('ok', { status: 201, headers: { 'cache-control': 'private, max-age=30' } });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "private, max-age=30"
+        }
+      }
+    },
+    {
+      "id": "rules-auth-denies",
+      "description": "An auth function that returns another status ends the request with its response.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('Sign in to continue', { status: 401, headers: { 'www-authenticate': 'Basic realm=Members' } });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "headers": {
+          "www-authenticate": "Basic realm=Members"
+        },
+        "bodyText": "Sign in to continue"
+      }
+    },
+    {
+      "id": "rules-auth-redirects",
+      "description": "An auth function can end the request with a redirect.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('', { status: 302, headers: { location: '/login' } });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 302,
+        "headers": {
+          "location": "/login"
+        }
+      }
+    },
+    {
+      "id": "rules-auth-only-on-matching-paths",
+      "description": "An auth rule does not run for a path that it does not match.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('Sign in to continue', { status: 401 });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>Home</h1>"
+      }
+    },
+    {
+      "id": "rules-auth-missing-function-503",
+      "description": "An auth rule whose function does not exist answers 503.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0099-4000-8000-000000000099"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 503,
+        "headers": {
+          "cache-control": "no-store"
+        }
+      }
+    },
+    {
+      "id": "rules-auth-missing-function-503-message",
+      "description": "The 503 for an auth rule whose function does not exist has a fixed message.",
+      "tags": [
+        "rules",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0099-4000-8000-000000000099"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 503,
+        "bodyText": "Authentication for this page is not available."
+      }
+    },
+    {
+      "id": "rules-auth-201-then-function-rule",
+      "description": "After a 201 auth response, the next matching rule runs.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('ok', { status: 201 });"
+          },
+          {
+            "uuid": "a1b2c3d4-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function",
+            "body": "return new Response(\"members api\", { status: 200, headers: { 'content-type': 'text/plain' } });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "members",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            },
+            {
+              "id": "members-api",
+              "type": "function",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 1,
+              "function_uuid": "a1b2c3d4-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "members api"
+      }
+    },
+    {
+      "id": "rules-auth-chain",
+      "description": "Auth rules chain: each must return 201 for the next one to run.",
+      "tags": [
+        "rules"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [
+          {
+            "uuid": "a1b2c3d4-0003-4000-8000-000000000003",
+            "id": "gate",
+            "type": "auth",
+            "body": "return new Response('ok', { status: 201 });"
+          },
+          {
+            "uuid": "a1b2c3d4-0005-4000-8000-000000000005",
+            "id": "second-gate",
+            "type": "auth",
+            "body": "return new Response('Second check failed', { status: 403 });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "first",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0003-4000-8000-000000000003"
+            },
+            {
+              "id": "second",
+              "type": "auth",
+              "urls": [
+                "/members/*"
+              ],
+              "weight": 1,
+              "function_uuid": "a1b2c3d4-0005-4000-8000-000000000005"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/members/report/"
+        }
+      },
+      "expect": {
+        "status": 403,
+        "bodyText": "Second check failed"
+      }
+    },
+    {
+      "id": "rules-missing-function-500",
+      "description": "A function rule whose function does not exist answers 500.",
+      "tags": [
+        "rules",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "members/report/index.html": "<h1>Members report</h1>",
+          "index.html": "<h1>Home</h1>"
+        },
+        "functions": [],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "a1b2c3d4-0099-4000-8000-000000000099"
+            }
+          ]
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/status"
+        }
+      },
+      "expect": {
+        "status": 500
+      }
+    }
+  ]
+}
