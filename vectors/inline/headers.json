@@ -1,0 +1,271 @@
+{
+  "cases": [
+    {
+      "id": "inline-default-private-cache",
+      "description": "A page with a token gets cache-control: private, max-age=0 when the function sets no cache-control.",
+      "tags": [
+        "inline"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<html><body><div>{{QUANT_FN:c3d4e5f6-0001-4000-8000-000000000001}}</div></body></html>"
+        },
+        "functions": [
+          {
+            "uuid": "c3d4e5f6-0001-4000-8000-000000000001",
+            "id": "hello",
+            "type": "function",
+            "body": "return new Response(\"Hello\", { status: 200, headers: {\"content-type\": \"text/plain\"} });"
+          }
+        ],
+        "meta": {
+          "project_settings": {
+            "enable_inline_fn": true
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "private, max-age=0"
+        }
+      }
+    },
+    {
+      "id": "inline-function-cache-control",
+      "description": "When the function sets cache-control, the page has that value.",
+      "tags": [
+        "inline",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<html><body><div>{{QUANT_FN:c3d4e5f6-0001-4000-8000-000000000001}}</div></body></html>"
+        },
+        "functions": [
+          {
+            "uuid": "c3d4e5f6-0001-4000-8000-000000000001",
+            "id": "hello",
+            "type": "function",
+            "body": "return new Response(\"Hello\", { status: 200, headers: {\"content-type\": \"text/plain\", \"cache-control\": \"public, max-age=60\"} });"
+          }
+        ],
+        "meta": {
+          "project_settings": {
+            "enable_inline_fn": true
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "public, max-age=60"
+        }
+      }
+    },
+    {
+      "id": "inline-function-header-on-page",
+      "description": "A header that the function sets is on the page response.",
+      "tags": [
+        "inline",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<html><body><div>{{QUANT_FN:c3d4e5f6-0001-4000-8000-000000000001}}</div></body></html>"
+        },
+        "functions": [
+          {
+            "uuid": "c3d4e5f6-0001-4000-8000-000000000001",
+            "id": "hello",
+            "type": "function",
+            "body": "return new Response(\"Hello\", { status: 200, headers: {\"content-type\": \"text/plain\", \"x-fn\": \"1\"} });"
+          }
+        ],
+        "meta": {
+          "project_settings": {
+            "enable_inline_fn": true
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "x-fn": "1"
+        }
+      }
+    },
+    {
+      "id": "inline-no-validators",
+      "description": "A page with a token has no etag and no last-modified header.",
+      "tags": [
+        "inline",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<html><body><div>{{QUANT_FN:c3d4e5f6-0001-4000-8000-000000000001}}</div></body></html>"
+        },
+        "functions": [
+          {
+            "uuid": "c3d4e5f6-0001-4000-8000-000000000001",
+            "id": "hello",
+            "type": "function",
+            "body": "return new Response(\"Hello\", { status: 200, headers: {\"content-type\": \"text/plain\"} });"
+          }
+        ],
+        "meta": {
+          "project_settings": {
+            "enable_inline_fn": true
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "etag": null,
+          "last-modified": null
+        }
+      }
+    },
+    {
+      "id": "inline-html-content-type",
+      "description": "A page with a token has content-type: text/html; charset=utf-8.",
+      "tags": [
+        "inline",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<html><body><div>{{QUANT_FN:c3d4e5f6-0001-4000-8000-000000000001}}</div></body></html>"
+        },
+        "functions": [
+          {
+            "uuid": "c3d4e5f6-0001-4000-8000-000000000001",
+            "id": "hello",
+            "type": "function",
+            "body": "return new Response(\"Hello\", { status: 200, headers: {\"content-type\": \"text/plain\"} });"
+          }
+        ],
+        "meta": {
+          "project_settings": {
+            "enable_inline_fn": true
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "content-type": "text/html; charset=utf-8"
+        }
+      }
+    },
+    {
+      "id": "inline-invalid-token-private",
+      "description": "A page with only a token that does not hold a full UUID keeps the token, and gets cache-control: private, max-age=0.",
+      "tags": [
+        "inline",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<html><body><div>{{QUANT_FN:x}}</div></body></html>"
+        },
+        "functions": [
+          {
+            "uuid": "c3d4e5f6-0001-4000-8000-000000000001",
+            "id": "hello",
+            "type": "function",
+            "body": "return new Response(\"Hello\", { status: 200, headers: {\"content-type\": \"text/plain\"} });"
+          }
+        ],
+        "meta": {
+          "project_settings": {
+            "enable_inline_fn": true
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "private, max-age=0"
+        },
+        "bodyIncludes": [
+          "{{QUANT_FN:x}}"
+        ]
+      }
+    },
+    {
+      "id": "inline-global-cache-control",
+      "description": "A project-wide cache-control header is used on a page with a token when the function sets no cache-control.",
+      "tags": [
+        "inline",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<html><body><div>{{QUANT_FN:c3d4e5f6-0001-4000-8000-000000000001}}</div></body></html>"
+        },
+        "functions": [
+          {
+            "uuid": "c3d4e5f6-0001-4000-8000-000000000001",
+            "id": "hello",
+            "type": "function",
+            "body": "return new Response(\"Hello\", { status: 200, headers: {\"content-type\": \"text/plain\"} });"
+          }
+        ],
+        "meta": {
+          "project_settings": {
+            "enable_inline_fn": true
+          }
+        },
+        "project": {
+          "globalHeaders": {
+            "cache-control": "public, max-age=60"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "public, max-age=60"
+        }
+      }
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 # @quantcdn/edge-conformance
 
-Conformance vectors for the Quant edge: rule matching, static serving and edge functions. Any implementation of that behaviour can run them through an adapter. Two implementations use them:
+Conformance vectors for the Quant edge: rule matching, static serving, edge functions, inline functions and project settings. Any implementation of that behaviour can run them through an adapter. Two implementations use them:
 
 - `quant serve` (in [`@quantcdn/quant-cli`](https://www.npmjs.com/package/@quantcdn/quant-cli)), the local edge, through an in-process adapter.
 - The Quant edge itself, through a runtime adapter (see [`adapters/runtime/README.md`](adapters/runtime/README.md)).
 
 When both pass the same cases, a site behaves the same on a developer's machine and in production.
 
-The vectors hold documented behaviour only: the [Quant documentation](https://docs.quantcdn.io) for page rules, auth middleware, content filters and edge functions, and the code-managed rules manifest (`quant/edge-rules.json`). KV and ledger behaviour is in a separate suite, [`@quantcdn/kv-ledger-conformance`](https://github.com/quantcdn/kv-ledger-conformance).
+The vectors hold behaviour that a client can observe in a response. Each case comes from the [Quant documentation](https://docs.quantcdn.io) (page rules, auth middleware, content filters, edge functions, inline functions, custom headers and basic authentication), the code-managed rules manifest (`quant/edge-rules.json`) or the responses of the production edge. KV and ledger behaviour is in a separate suite, [`@quantcdn/kv-ledger-conformance`](https://github.com/quantcdn/kv-ledger-conformance).
 
 ## Run the suite
 
@@ -43,14 +43,26 @@ An adapter module exports `createAdapter()` (named or default). The adapter impl
 | `matchRule` | `(rules, functions, request)` | `{ ruleId }`: the id of the first enabled function or auth rule that matches, or `null` |
 | `serveStatic` | `(files, request)` | `{ status, headers, bodyText }` from the static files only |
 | `runFunction` | `({ uuid, type, body, request, response? })` | `{ status, headers, bodyText }` for one function on every path |
-| `serveSite` | `({ files, functions, rules, request })` | `{ status, headers, bodyText }` for a whole site |
+| `serveSite` | `({ files, functions, rules, meta, project, request })` | `{ status, headers, bodyText }` for a whole site |
 
 - `rules` is a manifest in the `quant/edge-rules.json` format (`version`, `namespace`, `rules`).
 - `functions` is a list of `{ uuid, id, type, body }`. `type` is `function`, `auth` or `filter`, and `body` is the function source.
 - `files` maps a path relative to the site root (for example `about/index.html`) to its content.
+- `meta` (optional) is the `quant/meta.json` document of the site. The vectors use `project_settings.enable_inline_fn`: `true` turns inline functions on.
+- `project` (optional) holds the project settings that are set in the dashboard, not in the site files. An adapter for a local implementation writes them to its local settings file.
 - `request` is `{ method, url, headers?, body? }`. The `url` is absolute, and its host is the request host.
 - For a `filter`, `response` is the response that the filter gets: `{ status, headers, body }`.
 - `headers` in an answer is an object. A header with more than one value (`set-cookie`) can be a list.
+
+The `project` input has these fields. Each one is optional.
+
+| Field | Value | Default |
+|---|---|---|
+| `globalHeaders` | Project-wide response headers: `{ "header-name": "value" }` | No headers |
+| `basicAuth` | `{ "username": "...", "password": "..." }`: basic authentication for every path | Off |
+| `trailingSlash` | `"redirect"`: a path that ends with `/` gets a 301 to the path without it. `"none"`: no redirect | `"none"` |
+
+The runner checks each case input against its operation. A case with an unknown input field, or a `meta` or `project` input with the wrong shape, fails without a call to the adapter.
 
 An adapter can set `capabilities.excludeTags` to skip the cases with those tags. `dispose()`, when present, runs after the last case.
 
@@ -84,7 +96,9 @@ A case checks only what it states. The cases do not check the headers that only 
 | `rules` | Rule matching and the request pipeline: patterns, domains, methods, weight, auth middleware |
 | `static` | Static paths, index files, the `/_quant404` page, content types, HEAD and byte ranges |
 | `functions` | The edge function contract: the `event` object, globals, responses, errors and content filters |
-| `unverified` | The expected value comes from the documentation, and the runtime run has not checked it yet |
+| `inline` | Inline functions: `{{QUANT_FN:uuid}}` tokens in static HTML pages, the function request, and the page headers |
+| `project` | Project settings: project-wide headers, basic authentication and the trailing-slash redirect |
+| `unverified` | The runtime run has not checked the expected value yet |
 
 Each case has exactly one suite tag. The runtime adapter run checks each `unverified` case. If the case passes, the tag is removed. If the case fails, the case, the documentation or the implementation is fixed so that all three agree.
 

@@ -1,6 +1,6 @@
 {
   "name": "@quantcdn/edge-conformance",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Conformance vectors for Quant edge rules, static serving and edge functions, with a runner for any adapter.",
   "type": "module",
   "exports": {

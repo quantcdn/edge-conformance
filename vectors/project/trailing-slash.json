@@ -1,0 +1,290 @@
+{
+  "cases": [
+    {
+      "id": "project-slash-redirect",
+      "description": "With the trailing-slash redirect on, a path that ends with / gets a 301 to the path without it.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "trailingSlash": "redirect"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 301,
+        "headers": {
+          "location": "/about"
+        }
+      }
+    },
+    {
+      "id": "project-slash-redirect-keeps-query",
+      "description": "The trailing-slash redirect keeps the query string.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "trailingSlash": "redirect"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/?a=1"
+        }
+      },
+      "expect": {
+        "status": 301,
+        "headers": {
+          "location": "/about?a=1"
+        }
+      }
+    },
+    {
+      "id": "project-slash-redirect-cache",
+      "description": "The trailing-slash redirect can be cached for a short time.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "trailingSlash": "redirect"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 301,
+        "headers": {
+          "cache-control": "public, max-age=300, s-maxage=86400"
+        }
+      }
+    },
+    {
+      "id": "project-slash-home-not-redirected",
+      "description": "The home page / is not redirected.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "trailingSlash": "redirect"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>Home</h1>"
+      }
+    },
+    {
+      "id": "project-slash-none-without-slash",
+      "description": "A path without a trailing slash is not redirected.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "trailingSlash": "redirect"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>About</h1>"
+      }
+    },
+    {
+      "id": "project-slash-off-serves-page",
+      "description": "With the trailing-slash redirect off, a path that ends with / gets the page.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "trailingSlash": "none"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>About</h1>"
+      }
+    },
+    {
+      "id": "project-slash-rule-path-not-redirected",
+      "description": "A path that a function rule answers is not redirected.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "functions": [
+          {
+            "uuid": "d4e5f6a7-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function",
+            "body": "return new Response(\"from function\", { status: 200, headers: {\"content-type\": \"text/plain\"} });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "d4e5f6a7-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "project": {
+          "trailingSlash": "redirect"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/x/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "from function",
+        "headers": {
+          "location": null
+        }
+      }
+    },
+    {
+      "id": "project-slash-auth-first",
+      "description": "Basic authentication applies before the trailing-slash redirect.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          },
+          "trailingSlash": "redirect"
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "headers": {
+          "location": null
+        }
+      }
+    },
+    {
+      "id": "project-slash-redirect-no-global-headers",
+      "description": "The trailing-slash redirect does not have the project-wide headers.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "trailingSlash": "redirect",
+          "globalHeaders": {
+            "x-a": "1"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 301,
+        "headers": {
+          "x-a": null
+        }
+      }
+    }
+  ]
+}

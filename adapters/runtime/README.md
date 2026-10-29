@@ -8,12 +8,13 @@ The adapter follows the interface in [`src/adapter.d.ts`](../../src/adapter.d.ts
 
 The adapter must implement all four operations and list them in `capabilities.ops`.
 
-### `serveSite({ files, functions, rules, request })`
+### `serveSite({ files, functions, rules, meta, project, request })`
 
 1. Deploy `files` as the site content (each key is a path relative to the site root).
 2. Deploy `functions` with the given `uuid`, `type` and `body`, and `rules` as the code-managed rules manifest.
-3. Send `request` to the project's domain: the method, the path and query of `request.url`, the headers and the body. Do not follow redirects.
-4. Answer `{ status, headers, bodyText }`. Give `set-cookie` as a list when the response has more than one.
+3. Set the project settings of the test project through the public dashboard API: "Enable Inline Functions" when `meta.project_settings.enable_inline_fn` is `true`, and the custom headers, basic authentication and trailing-slash behaviour from `project`. Reset each setting that the case does not give to its default (off, no headers, no redirect).
+4. Send `request` to the project's domain: the method, the path and query of `request.url`, the headers and the body. Do not follow redirects.
+5. Answer `{ status, headers, bodyText }`. Give `set-cookie` as a list when the response has more than one.
 
 The request host in a vector is `www.example.com` (or another `example.com` name). The adapter maps it to the test domain. A case that matches on the domain needs that domain to be attached to the test project, or the adapter must list the case as skipped and say why.
 

@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadCases, selectCases, checkResult, run, OPS, SUITE_TAGS, TAGS } from '../src/index.js';
+import { loadCases, selectCases, checkResult, inputErrors, run, OPS, SUITE_TAGS, TAGS } from '../src/index.js';
 import { createAdapter as createOracle } from './oracle-adapter.mjs';
 
 const cases = await loadCases();
@@ -35,6 +35,22 @@ describe('vectors', () => {
     }
   });
 
+  test('every case input has only the fields of its op', () => {
+    for (const c of cases) assert.deepEqual(inputErrors(c), [], c.id);
+  });
+
+  test('has the suites and case counts of this version', () => {
+    const counts = Object.fromEntries(SUITE_TAGS.map((suite) => [suite, cases.filter((c) => c.suite === suite).length]));
+    assert.deepEqual(counts, { rules: 49, static: 22, functions: 34, inline: 24, project: 24 });
+    assert.equal(cases.filter((c) => c.tags.includes('unverified')).length, 45);
+  });
+
+  test('meta and project inputs are used only by serveSite cases', () => {
+    const withSettings = cases.filter((c) => 'meta' in c.input || 'project' in c.input);
+    assert.ok(withSettings.length > 0);
+    for (const c of withSettings) assert.equal(c.op, 'serveSite', c.id);
+  });
+
   test('a matchRule case expects only a rule id', () => {
     for (const c of cases.filter((item) => item.op === 'matchRule')) {
       assert.deepEqual(Object.keys(c.expect), ['ruleId'], c.id);
@@ -57,6 +73,31 @@ describe('selectCases', () => {
 
   test('keeps every case when no tags are given', () => {
     assert.equal(selectCases(cases).length, cases.length);
+  });
+});
+
+describe('inputErrors', () => {
+  const site = (input) => ({ op: 'serveSite', input: { request: { method: 'GET', url: 'https://www.example.com/' }, ...input } });
+
+  test('accepts meta and project on serveSite', () => {
+    assert.deepEqual(inputErrors(site({
+      meta: { project_settings: { enable_inline_fn: true } },
+      project: { globalHeaders: { 'x-a': '1' }, basicAuth: { username: 'u', password: 'p' }, trailingSlash: 'redirect' }
+    })), []);
+  });
+
+  test('refuses an input field that the op does not have', () => {
+    assert.equal(inputErrors({ op: 'serveStatic', input: { files: {}, request: {}, meta: {} } }).length, 1);
+    assert.equal(inputErrors({ op: 'nope', input: {} }).length, 1);
+  });
+
+  test('refuses a project or meta with the wrong shape', () => {
+    assert.equal(inputErrors(site({ project: { headers: {} } })).length, 1);
+    assert.equal(inputErrors(site({ project: { globalHeaders: { 'x-a': 1 } } })).length, 1);
+    assert.equal(inputErrors(site({ project: { basicAuth: { username: 'u' } } })).length, 1);
+    assert.equal(inputErrors(site({ project: { trailingSlash: 'preserve' } })).length, 1);
+    assert.equal(inputErrors(site({ project: [] })).length, 1);
+    assert.equal(inputErrors(site({ meta: 'x' })).length, 1);
   });
 });
 
@@ -163,6 +204,16 @@ describe('run', () => {
     const thrown = result.cases.find((c) => c.op === 'serveStatic');
     assert.match(thrown.failures[0], /boom/);
     assert.equal(disposed, true);
+  });
+
+  test('fails a case whose input is not valid, without a call to the adapter', async () => {
+    let called = false;
+    const adapter = { capabilities: { ops: ['serveSite'] }, serveSite: async () => { called = true; return {}; } };
+    const item = { id: 'bad', op: 'serveSite', tags: ['project'], file: 'x', input: { request: {}, project: { nope: 1 } }, expect: { status: 200 } };
+    const result = await run({ adapter, cases: [item] });
+    assert.equal(result.failed, 1);
+    assert.match(result.cases[0].failures[0], /invalid case input/);
+    assert.equal(called, false);
   });
 
   test('passes each case a copy of its input', async () => {

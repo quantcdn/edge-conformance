@@ -1,0 +1,268 @@
+{
+  "cases": [
+    {
+      "id": "project-global-header-on-page",
+      "description": "A project-wide header is on a static page.",
+      "tags": [
+        "project"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "globalHeaders": {
+            "x-frame-options": "DENY"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "x-frame-options": "DENY"
+        }
+      }
+    },
+    {
+      "id": "project-global-header-on-file",
+      "description": "A project-wide header is on a static file.",
+      "tags": [
+        "project"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "globalHeaders": {
+            "x-frame-options": "DENY"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/css/site.css"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "x-frame-options": "DENY"
+        }
+      }
+    },
+    {
+      "id": "project-global-header-on-function",
+      "description": "A project-wide header is on the response of a function rule.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "functions": [
+          {
+            "uuid": "d4e5f6a7-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function",
+            "body": "return new Response(\"from function\", { status: 200, headers: {\"content-type\": \"text/plain\"} });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "d4e5f6a7-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "project": {
+          "globalHeaders": {
+            "x-frame-options": "DENY"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/status"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "x-frame-options": "DENY"
+        },
+        "bodyText": "from function"
+      }
+    },
+    {
+      "id": "project-function-header-wins",
+      "description": "A header that a function sets replaces the project-wide header of the same name.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "functions": [
+          {
+            "uuid": "d4e5f6a7-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function",
+            "body": "return new Response(\"from function\", { status: 200, headers: {\"content-type\": \"text/plain\", \"x-a\": \"fn\"} });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "d4e5f6a7-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "project": {
+          "globalHeaders": {
+            "x-a": "global"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/status"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "x-a": "fn"
+        }
+      }
+    },
+    {
+      "id": "project-global-cache-control",
+      "description": "A project-wide cache-control header replaces the default cache-control of a static page.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "globalHeaders": {
+            "cache-control": "public, max-age=60"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "cache-control": "public, max-age=60"
+        }
+      }
+    },
+    {
+      "id": "project-quant-server-not-set",
+      "description": "A project-wide header cannot change the quant-server header.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "globalHeaders": {
+            "quant-server": "x"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 200,
+        "headers": {
+          "quant-server": {
+            "startsWith": "QuantCDN"
+          }
+        }
+      }
+    },
+    {
+      "id": "project-global-header-on-404",
+      "description": "A project-wide header is on the 404 response.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "globalHeaders": {
+            "x-frame-options": "DENY"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/missing"
+        }
+      },
+      "expect": {
+        "status": 404,
+        "headers": {
+          "x-frame-options": "DENY"
+        }
+      }
+    }
+  ]
+}

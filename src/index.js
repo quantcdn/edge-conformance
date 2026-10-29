@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 export const VECTORS_DIR = fileURLToPath(new URL('../vectors/', import.meta.url));
 
 /** The suite tags. Each case has exactly one; it names the vector directory. */
-export const SUITE_TAGS = ['rules', 'static', 'functions'];
+export const SUITE_TAGS = ['rules', 'static', 'functions', 'inline', 'project'];
 
 /** Every tag that a case can have. */
 export const TAGS = [...SUITE_TAGS, 'unverified'];
@@ -23,6 +23,51 @@ export const OPS = {
   runFunction: (input) => [input],
   serveSite: (input) => [input]
 };
+
+/** The input fields that a case of each operation can have. */
+export const INPUT_FIELDS = {
+  matchRule: ['rules', 'functions', 'request'],
+  serveStatic: ['files', 'request'],
+  runFunction: ['uuid', 'type', 'body', 'request', 'response', 'kv'],
+  serveSite: ['files', 'functions', 'rules', 'request', 'meta', 'project']
+};
+
+/** The fields of the serveSite `project` input: the local project settings. */
+export const PROJECT_FIELDS = ['globalHeaders', 'basicAuth', 'trailingSlash'];
+
+const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+const isTextMap = (value) => isObject(value) && Object.values(value).every((item) => typeof item === 'string');
+
+const PROJECT_CHECKS = {
+  globalHeaders: (value) => (isTextMap(value) ? null : 'project.globalHeaders must map header names to text'),
+  basicAuth: (value) => (isTextMap(value) && typeof value.username === 'string' && typeof value.password === 'string'
+    && Object.keys(value).length === 2 ? null : 'project.basicAuth must be { username, password }'),
+  trailingSlash: (value) => (['redirect', 'none'].includes(value) ? null : 'project.trailingSlash must be "redirect" or "none"')
+};
+
+function projectErrors(project) {
+  if (!isObject(project)) return ['project must be an object'];
+  return Object.entries(project).map(([key, value]) => (PROJECT_CHECKS[key] ? PROJECT_CHECKS[key](value) : `project.${key} is not a known field`))
+    .filter(Boolean);
+}
+
+function metaErrors(meta) {
+  return isObject(meta) ? [] : ['meta must be an object (the quant/meta.json document)'];
+}
+
+/**
+ * Check the input of a case against its operation.
+ * @returns {string[]} One message for each problem (empty when the input is valid).
+ */
+export function inputErrors(item) {
+  const fields = INPUT_FIELDS[item.op];
+  if (!fields) return [`unknown op ${item.op}`];
+  if (!isObject(item.input)) return ['input must be an object'];
+  const errors = Object.keys(item.input).filter((key) => !fields.includes(key)).map((key) => `${item.op} has no input ${key}`);
+  if ('meta' in item.input) errors.push(...metaErrors(item.input.meta));
+  if ('project' in item.input) errors.push(...projectErrors(item.input.project));
+  return errors;
+}
 
 /** The arguments that the runner passes to adapter[op] for a case input. */
 export function adapterArgs(op, input) {
@@ -181,6 +226,8 @@ async function runCase(adapter, item) {
   const summary = { id: item.id, op: item.op, tags: item.tags, file: item.file };
   const reason = skipReason(adapter, item);
   if (reason) return { ...summary, status: 'skipped', failures: [], reason };
+  const invalid = inputErrors(item);
+  if (invalid.length) return { ...summary, status: 'failed', failures: invalid.map((text) => `invalid case input: ${text}`) };
   try {
     const input = structuredClone(item.input);
     const actual = await adapter[item.op](...adapterArgs(item.op, input));

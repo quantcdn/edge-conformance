@@ -1,0 +1,284 @@
+{
+  "cases": [
+    {
+      "id": "project-auth-no-credentials",
+      "description": "With basic authentication on, a request without credentials gets 401.",
+      "tags": [
+        "project"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "bodyExcludes": [
+          "Home"
+        ]
+      }
+    },
+    {
+      "id": "project-auth-correct-credentials",
+      "description": "With basic authentication on, a request with the correct credentials gets the page.",
+      "tags": [
+        "project"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/",
+          "headers": {
+            "authorization": "Basic dTpw"
+          }
+        }
+      },
+      "expect": {
+        "status": 200,
+        "bodyText": "<h1>Home</h1>"
+      }
+    },
+    {
+      "id": "project-auth-wrong-credentials",
+      "description": "With basic authentication on, a request with wrong credentials gets 401.",
+      "tags": [
+        "project"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/",
+          "headers": {
+            "authorization": "Basic d3Jvbmc6eA=="
+          }
+        }
+      },
+      "expect": {
+        "status": 401,
+        "bodyExcludes": [
+          "Home"
+        ]
+      }
+    },
+    {
+      "id": "project-auth-every-page",
+      "description": "Basic authentication applies to every page, not only the home page.",
+      "tags": [
+        "project"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/about/"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "bodyExcludes": [
+          "About"
+        ]
+      }
+    },
+    {
+      "id": "project-auth-missing-path",
+      "description": "Basic authentication applies to a path that has no page.",
+      "tags": [
+        "project"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/missing"
+        }
+      },
+      "expect": {
+        "status": 401
+      }
+    },
+    {
+      "id": "project-auth-before-function-rule",
+      "description": "Basic authentication applies before a function rule: without credentials, the function output is not sent.",
+      "tags": [
+        "project"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "functions": [
+          {
+            "uuid": "d4e5f6a7-0001-4000-8000-000000000001",
+            "id": "api",
+            "type": "function",
+            "body": "return new Response(\"from function\", { status: 200, headers: {\"content-type\": \"text/plain\"} });"
+          }
+        ],
+        "rules": {
+          "version": 1,
+          "namespace": "conformance",
+          "rules": [
+            {
+              "id": "api",
+              "type": "function",
+              "urls": [
+                "/api/*"
+              ],
+              "weight": 0,
+              "function_uuid": "d4e5f6a7-0001-4000-8000-000000000001"
+            }
+          ]
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/api/status"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "bodyExcludes": [
+          "from function"
+        ]
+      }
+    },
+    {
+      "id": "project-auth-challenge",
+      "description": "The 401 response asks for basic credentials and is not stored in a shared cache.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "headers": {
+          "www-authenticate": "Basic realm=Authorization Required",
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "private"
+        },
+        "bodyText": "Authentication required"
+      }
+    },
+    {
+      "id": "project-auth-401-global-headers",
+      "description": "The 401 response has the project-wide headers.",
+      "tags": [
+        "project",
+        "unverified"
+      ],
+      "op": "serveSite",
+      "input": {
+        "files": {
+          "index.html": "<h1>Home</h1>",
+          "about/index.html": "<h1>About</h1>",
+          "css/site.css": "body { color: #000; }"
+        },
+        "project": {
+          "basicAuth": {
+            "username": "u",
+            "password": "p"
+          },
+          "globalHeaders": {
+            "x-a": "1"
+          }
+        },
+        "request": {
+          "method": "GET",
+          "url": "https://www.example.com/"
+        }
+      },
+      "expect": {
+        "status": 401,
+        "headers": {
+          "x-a": "1"
+        }
+      }
+    }
+  ]
+}

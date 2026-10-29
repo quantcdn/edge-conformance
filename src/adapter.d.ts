@@ -53,10 +53,36 @@ export interface RunFunctionInput {
   kv?: unknown;
 }
 
+/**
+ * The quant/meta.json document of the site. The vectors use
+ * `project_settings.enable_inline_fn` (inline functions on or off).
+ */
+export interface SiteMeta {
+  project_settings?: { enable_inline_fn?: boolean };
+  [key: string]: unknown;
+}
+
+/**
+ * The project settings that are set in the dashboard, not in the site files.
+ * A local implementation reads them from a local file.
+ */
+export interface ProjectSettings {
+  /** Project-wide response headers: header name -> value. */
+  globalHeaders?: Record<string, string>;
+  /** Basic authentication for the whole project. Absent = off. */
+  basicAuth?: { username: string; password: string };
+  /** 'redirect': a path that ends with / gets a 301 to the path without it. Default 'none'. */
+  trailingSlash?: 'redirect' | 'none';
+}
+
 export interface ServeSiteInput {
   files?: Record<string, string>;
   functions?: CaseFunction[];
   rules?: RulesManifest;
+  /** The quant/meta.json document. Absent = no meta.json. */
+  meta?: SiteMeta;
+  /** The project settings. Absent = the defaults (no headers, no basic auth, no redirect). */
+  project?: ProjectSettings;
   request: CaseRequest;
 }
 
@@ -102,7 +128,7 @@ export interface Case {
   input: Record<string, unknown>;
   expect: CaseExpect;
   /** Set by loadCases: the suite directory and the file. */
-  suite: 'rules' | 'static' | 'functions';
+  suite: 'rules' | 'static' | 'functions' | 'inline' | 'project';
   file: string;
 }
 
@@ -124,8 +150,14 @@ export interface RunResult {
 }
 
 export const VECTORS_DIR: string;
-export const SUITE_TAGS: Array<'rules' | 'static' | 'functions'>;
+export const SUITE_TAGS: Array<'rules' | 'static' | 'functions' | 'inline' | 'project'>;
 export const TAGS: string[];
+/** The input fields that a case of each operation can have. */
+export const INPUT_FIELDS: Record<'matchRule' | 'serveStatic' | 'runFunction' | 'serveSite', string[]>;
+/** The fields of the serveSite `project` input. */
+export const PROJECT_FIELDS: Array<keyof ProjectSettings>;
+/** The problems with a case input (empty when it is valid). The runner fails a case with an invalid input. */
+export function inputErrors(item: { op: string; input: unknown }): string[];
 export const OPS: Record<'matchRule' | 'serveStatic' | 'runFunction' | 'serveSite', (input: Record<string, unknown>) => unknown[]>;
 export function adapterArgs(op: string, input: Record<string, unknown>): unknown[];
 export function loadCases(options?: { dir?: string }): Promise<Case[]>;
