@@ -95,6 +95,8 @@ describe('inputErrors', () => {
     assert.equal(inputErrors(site({ project: { headers: {} } })).length, 1);
     assert.equal(inputErrors(site({ project: { globalHeaders: { 'x-a': 1 } } })).length, 1);
     assert.equal(inputErrors(site({ project: { basicAuth: { username: 'u' } } })).length, 1);
+    assert.equal(inputErrors(site({ project: { basicAuth: { username: '', password: 'p' } } })).length, 1);
+    assert.equal(inputErrors(site({ project: { basicAuth: { username: 'u', password: '' } } })).length, 1);
     assert.equal(inputErrors(site({ project: { trailingSlash: 'preserve' } })).length, 1);
     assert.equal(inputErrors(site({ project: [] })).length, 1);
     assert.equal(inputErrors(site({ meta: 'x' })).length, 1);

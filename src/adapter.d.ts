@@ -69,7 +69,7 @@ export interface SiteMeta {
 export interface ProjectSettings {
   /** Project-wide response headers: header name -> value. */
   globalHeaders?: Record<string, string>;
-  /** Basic authentication for the whole project. Absent = off. */
+  /** Basic authentication for the whole project, with non-empty values. Absent = off. */
   basicAuth?: { username: string; password: string };
   /** 'redirect': a path that ends with / gets a 301 to the path without it. Default 'none'. */
   trailingSlash?: 'redirect' | 'none';

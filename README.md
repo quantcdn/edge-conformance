@@ -59,12 +59,12 @@ The `project` input has these fields. Each one is optional.
 | Field | Value | Default |
 |---|---|---|
 | `globalHeaders` | Project-wide response headers: `{ "header-name": "value" }` | No headers |
-| `basicAuth` | `{ "username": "...", "password": "..." }`: basic authentication for every path | Off |
+| `basicAuth` | `{ "username": "...", "password": "..." }`, both non-empty: basic authentication for every path | Off |
 | `trailingSlash` | `"redirect"`: a path that ends with `/` gets a 301 to the path without it. `"none"`: no redirect | `"none"` |
 
 The runner checks each case input against its operation. A case with an unknown input field, or a `meta` or `project` input with the wrong shape, fails without a call to the adapter.
 
-An adapter can set `capabilities.excludeTags` to skip the cases with those tags. `dispose()`, when present, runs after the last case.
+An adapter can set `capabilities.excludeTags` to skip the cases with those tags. An adapter without inline functions or project settings sets `capabilities.excludeTags: ['inline', 'project']`. `dispose()`, when present, runs after the last case.
 
 ## Vectors
 

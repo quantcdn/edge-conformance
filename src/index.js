@@ -37,11 +37,12 @@ export const PROJECT_FIELDS = ['globalHeaders', 'basicAuth', 'trailingSlash'];
 
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isTextMap = (value) => isObject(value) && Object.values(value).every((item) => typeof item === 'string');
+const isText = (value) => typeof value === 'string' && value !== '';
 
 const PROJECT_CHECKS = {
   globalHeaders: (value) => (isTextMap(value) ? null : 'project.globalHeaders must map header names to text'),
-  basicAuth: (value) => (isTextMap(value) && typeof value.username === 'string' && typeof value.password === 'string'
-    && Object.keys(value).length === 2 ? null : 'project.basicAuth must be { username, password }'),
+  basicAuth: (value) => (isObject(value) && isText(value.username) && isText(value.password)
+    && Object.keys(value).length === 2 ? null : 'project.basicAuth must be { username, password } with non-empty text'),
   trailingSlash: (value) => (['redirect', 'none'].includes(value) ? null : 'project.trailingSlash must be "redirect" or "none"')
 };
 
