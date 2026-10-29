@@ -3,7 +3,7 @@
 Conformance vectors for the Quant edge: rule matching, static serving, edge functions, inline functions and project settings. Any implementation of that behaviour can run them through an adapter. Two implementations use them:
 
 - `quant serve` (in [`@quantcdn/quant-cli`](https://www.npmjs.com/package/@quantcdn/quant-cli)), the local edge, through an in-process adapter.
-- The Quant edge itself, through a runtime adapter (see [`adapters/runtime/README.md`](adapters/runtime/README.md)).
+- The Quant edge itself, through the runtime adapter in [`adapters/runtime/`](adapters/runtime/README.md). It deploys each case to a Quant project made for the test through the public API, and sends the request to that project's domain.
 
 When both pass the same cases, a site behaves the same on a developer's machine and in production.
 
