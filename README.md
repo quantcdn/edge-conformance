@@ -7,7 +7,7 @@ Conformance vectors for the Quant edge: rule matching, static serving, edge func
 
 When both pass the same cases, a site behaves the same on a developer's machine and in production.
 
-The vectors hold behaviour that a client can observe in a response. Each case comes from the [Quant documentation](https://docs.quantcdn.io) (page rules, auth middleware, content filters, edge functions, inline functions, custom headers and basic authentication), the code-managed rules manifest (`quant/edge-rules.json`) or the responses of the production edge. KV and ledger behaviour is in a separate suite, [`@quantcdn/kv-ledger-conformance`](https://github.com/quantcdn/kv-ledger-conformance).
+The vectors hold behaviour that a client can observe in a response. Each case comes from the [Quant documentation](https://docs.quantcdn.io) (page rules, auth middleware, content filters, edge functions, inline functions, custom headers and basic authentication), the code-managed rules manifest (`quant/edge-rules.json`) or the behaviour that a client observes on the production edge. A case that the runtime run has not checked has the `unverified` tag. KV and ledger behaviour is in a separate suite, [`@quantcdn/kv-ledger-conformance`](https://github.com/quantcdn/kv-ledger-conformance).
 
 ## Run the suite
 
