@@ -1,7 +1,7 @@
 {
   "name": "@quantcdn/edge-conformance",
   "version": "0.2.0",
-  "description": "Conformance vectors for Quant edge rules, static serving and edge functions, with a runner for any adapter.",
+  "description": "Conformance vectors for Quant edge rules, static serving, edge functions, inline functions and project settings, with a runner for any adapter.",
   "type": "module",
   "exports": {
     ".": "./src/index.js"
